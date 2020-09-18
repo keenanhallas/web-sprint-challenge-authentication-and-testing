@@ -5,7 +5,6 @@ const db = require("../database/dbConfig");
 const router = require('express').Router();
 
 router.get("/users", (req, res) => {
-  console.log("getting");
   db("users")
     .then(users => {
       res.status(200).json({ users: users });
@@ -34,6 +33,20 @@ router.post('/register', (req, res) => {
 
 router.post('/login', (req, res) => {
   // implement login
+  let { username, password } = req.body;
+
+  db("users")
+    .where("username", "=", username)
+    .first()
+    .then(user => {
+      if(user && bcrypt.compareSync(password, user.password)) {
+        req.session.user = user;
+        res.status(200).json({ Message: `Welcome ${user.username}!` });
+      }
+    })
+    .catch(err => {
+      res.status(401).json({ message: "Invalid credentials" });
+    });
 });
 
 module.exports = router;
