@@ -1,6 +1,19 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const session = require("express-session");
+
+const sessionConfig = {
+    name: "best cookie ever",
+    secret: "it's chocolate chip",
+    cookie: {
+        maxAge: 1000 * 30,
+        secure: false,
+        httpOnly: true
+    },
+    resave: false,
+    saveUnitialized: false
+};
 
 const authenticate = require('../auth/authenticate-middleware.js');
 const authRouter = require('../auth/auth-router.js');
@@ -11,6 +24,7 @@ const server = express();
 server.use(helmet());
 server.use(cors());
 server.use(express.json());
+server.use(session(sessionConfig));
 
 server.use('/api/auth', authRouter);
 server.use('/api/jokes', authenticate, jokesRouter);
